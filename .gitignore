@@ -1,2 +1,10 @@
 .idea
 .vscode
+# 忽略所有node_modules
+node_modules
+
+# 忽略所有dist
+dist
+
+# 忽略所有build
+build
