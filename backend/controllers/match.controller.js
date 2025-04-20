@@ -316,7 +316,7 @@ const getMyMatches = async (req, res) => {
 // 获取待评分的比赛（裁判）
 const getMatchesToJudge = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.id;
     const user = await User.findByPk(userId);
 
     if (!user) {

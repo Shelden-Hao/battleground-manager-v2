@@ -101,26 +101,43 @@ const getJudgeScores = async (req, res) => {
 const createScore = async (req, res) => {
   try {
     const { match_id, player_id, score, comments } = req.body;
+    console.log("接收评分请求参数:", { match_id, player_id, score, comments, user_id: req.user?.id, user_role: req.user?.role });
     
     // 验证是否为裁判
     if (req.user.role !== "judge" && req.user.role !== "admin") {
-      return res.status(403).json({ message: "只有裁判可以评分" });
+      return res.status(403).json({ message: "只有裁判可以评分", code: "NOT_JUDGE", details: { role: req.user.role } });
     }
     
     // 验证比赛是否存在
     const match = await Match.findByPk(match_id);
     if (!match) {
-      return res.status(404).json({ message: "比赛不存在" });
+      return res.status(404).json({ message: "比赛不存在", code: "MATCH_NOT_FOUND", details: { match_id } });
     }
     
     // 验证选手是否参与该比赛
     if (match.player1_id !== player_id && match.player2_id !== player_id) {
-      return res.status(400).json({ message: "该选手未参与此比赛" });
+      return res.status(400).json({ 
+        message: "该选手未参与此比赛", 
+        code: "PLAYER_NOT_IN_MATCH", 
+        details: { 
+          match_id, 
+          player_id,
+          player1_id: match.player1_id,
+          player2_id: match.player2_id
+        } 
+      });
     }
     
     // 验证比赛状态
-    if (match.status !== "IN_PROGRESS") {
-      return res.status(400).json({ message: "只能对进行中的比赛进行评分" });
+    if (match.status !== "in_progress") {
+      return res.status(400).json({ 
+        message: "只能对进行中的比赛进行评分", 
+        code: "WRONG_MATCH_STATUS", 
+        details: { 
+          current_status: match.status,
+          required_status: "in_progress"
+        } 
+      });
     }
     
     // 检查是否已经评过分
@@ -133,7 +150,16 @@ const createScore = async (req, res) => {
     });
     
     if (existingScore) {
-      return res.status(400).json({ message: "您已经对该选手评过分了" });
+      return res.status(400).json({ 
+        message: "您已经对该选手评过分了", 
+        code: "ALREADY_SCORED", 
+        details: { 
+          match_id, 
+          player_id, 
+          judge_id: req.user.id,
+          existing_score_id: existingScore.id
+        } 
+      });
     }
     
     // 创建评分
@@ -158,7 +184,11 @@ const createScore = async (req, res) => {
     });
   } catch (error) {
     console.error("创建评分失败:", error);
-    res.status(500).json({ message: "创建评分失败" });
+    res.status(500).json({ 
+      message: "创建评分失败", 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 

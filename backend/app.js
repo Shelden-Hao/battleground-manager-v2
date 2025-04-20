@@ -11,6 +11,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// 添加路由日志中间件，用于调试
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 // Swagger配置
 const swaggerOptions = {
   definition: {
@@ -67,6 +73,7 @@ app.use("/api/registrations", require("./routes/registration.routes"));
 app.use("/api/groups", require("./routes/group.routes"));
 app.use("/api/matches", require("./routes/match.routes"));
 app.use("/api/scores", require("./routes/score.routes"));
+app.use("/api/rankings", require("./routes/ranking.routes"));
 
 // 错误处理中间件
 app.use((err, req, res, next) => {
