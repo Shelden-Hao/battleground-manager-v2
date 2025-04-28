@@ -34,14 +34,15 @@ const Login: React.FC = () => {
         localStorage.setItem('token', res.token);
         
         // 获取用户信息
-        const userInfoSuccess = await fetchUserInfo();
-        if (userInfoSuccess) {
-          message.success('登录成功！');
-          sessionStorage.removeItem('redirecting');
+        await fetchUserInfo();
+        
+        message.success('登录成功！');
+        sessionStorage.removeItem('redirecting');
+        
+        // 直接跳转到首页，不再等待其他操作
+        setTimeout(() => {
           history.push('/home');
-        } else {
-          message.error('获取用户信息失败，请重试');
-        }
+        }, 100);
       }
     } catch (error: any) {
       message.error(error.response?.data?.message || '登录失败，请重试！');
