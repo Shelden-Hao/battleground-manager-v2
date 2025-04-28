@@ -63,6 +63,12 @@ export default defineConfig({
       component: './JudgeMatches',
       access: 'isJudge',
     },
+    {
+      name: '选手评分',
+      path: '/judge-scoring',
+      component: './JudgeScoring',
+      access: 'isJudge',
+    },
     // {
     //   name: '报名管理',
     //   path: '/registrations',
@@ -103,7 +109,7 @@ export default defineConfig({
         },
         {
           path: '/rankings/competition/:competitionId/stage/:stageId',
-          component: './Rankings',         
+          component: './Rankings',
         },
       ],
       hideInMenu: true,
@@ -123,9 +129,8 @@ export default defineConfig({
   npmClient: 'npm',
   proxy: {
     '/api': {
-      'target': 'http://localhost:3000',
-      'changeOrigin': true,
+      target: 'http://localhost:3000',
+      changeOrigin: true,
     },
   },
 });
-

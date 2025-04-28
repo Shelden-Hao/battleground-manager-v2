@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Card, Badge, Typography, Space, Button, Empty, message, Spin } from 'antd';
 import { history } from '@umijs/max';
 import { getMatchesToJudge } from '@/services/match';
-import { CalendarOutlined, TeamOutlined } from '@ant-design/icons';
+import { CalendarOutlined, TeamOutlined, EditOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import styles from './index.less';
 
@@ -121,9 +121,16 @@ const JudgeMatches: React.FC = () => {
         <Space style={{ marginBottom: 16 }}>
           <Title level={2}>待评分比赛</Title>
           <Button type="primary" onClick={fetchJudgeMatches}>刷新</Button>
+          <Button
+            type="primary" 
+            icon={<EditOutlined />}
+            onClick={() => history.push('/judge-scoring')}
+          >
+            批量评分
+          </Button>
         </Space>
         <Text type="secondary">
-          在此页面可以查看所有进行中需要评分的比赛，点击&quot;前往评分&quot;可进入比赛详情页进行评分。
+          在此页面可以查看所有进行中需要评分的比赛，点击&quot;前往评分&quot;可进入比赛详情页进行评分。若要进行批量评分，可点击&quot;批量评分&quot;按钮。
         </Text>
       </div>
 
