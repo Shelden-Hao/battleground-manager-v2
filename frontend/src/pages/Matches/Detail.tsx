@@ -3,6 +3,7 @@ import { Card, Row, Col, Tag, Button, Table, Divider, Typography, Modal, Form, I
 import { useParams, useAccess } from '@umijs/max';
 import { getMatch, updateMatch } from '@/services/match';
 import { createScore } from '@/services/score';
+import { register, cancelRegistration, getMyRegistrations } from '@/services/registration';
 import { TrophyOutlined, TeamOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import styles from './Detail.less';
@@ -18,10 +19,14 @@ const MatchDetail: React.FC = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<API.CurrentUser | null>(null);
   const [form] = Form.useForm();
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [registrationId, setRegistrationId] = useState<number | null>(null);
+  const [registerLoading, setRegisterLoading] = useState(false);
   
   const access = useAccess();
   const isJudge = access.isJudge;
   const isAdmin = access.isAdmin;
+  const isPlayer = access.isPlayer;
   
   const fetchMatch = async (matchId: number) => {
     setLoading(true);
@@ -36,12 +41,90 @@ const MatchDetail: React.FC = () => {
     }
   };
   
+  // 检查当前用户是否已报名本比赛
+  const checkRegistrationStatus = async () => {
+    if (!id || !isPlayer) return;
+    
+    try {
+      const registrations = await getMyRegistrations();
+      if (!match) return;
+      
+      const currentRegistration = registrations.find(
+        (reg: any) => reg.match_id === Number(id) || 
+                      (match?.competition_id && reg.competition_id === match.competition_id)
+      );
+      
+      if (currentRegistration) {
+        setIsRegistered(true);
+        setRegistrationId(currentRegistration.id);
+      } else {
+        setIsRegistered(false);
+        setRegistrationId(null);
+      }
+    } catch (error) {
+      console.error('获取报名状态失败', error);
+    }
+  };
+  
+  // 报名比赛
+  const handleRegister = async () => {
+    if (!match?.competition_id) {
+      message.error('无法获取比赛信息');
+      return;
+    }
+    
+    setRegisterLoading(true);
+    try {
+      await register({ competition_id: match.competition_id });
+      message.success('报名成功');
+      checkRegistrationStatus();
+    } catch (error) {
+      console.error('报名失败', error);
+      message.error('报名失败，请稍后重试');
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+  
+  // 取消报名
+  const handleCancelRegistration = () => {
+    if (!registrationId) return;
+    
+    Modal.confirm({
+      title: '取消报名',
+      content: '确定要取消报名吗？',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: async () => {
+        setRegisterLoading(true);
+        try {
+          await cancelRegistration(registrationId);
+          message.success('已取消报名');
+          setIsRegistered(false);
+          setRegistrationId(null);
+        } catch (error) {
+          console.error('取消报名失败', error);
+          message.error('取消报名失败，请稍后重试');
+        } finally {
+          setRegisterLoading(false);
+        }
+      },
+    });
+  };
+  
   useEffect(() => {
     if (id) {
       fetchMatch(Number(id));
     }
   }, [id]);
   
+  // 当match数据加载完成后，检查报名状态
+  useEffect(() => {
+    if (match && isPlayer) {
+      checkRegistrationStatus();
+    }
+  }, [match]);
+
   const handleScoreSubmit = async () => {
     if (!selectedPlayer || !match) return;
     
@@ -122,40 +205,66 @@ const MatchDetail: React.FC = () => {
             </Space>
           </Col>
           <Col span={8} style={{ textAlign: 'right' }}>
-            <Tag color={
-              match.status === 'pending' ? 'default' : 
-              match.status === 'in_progress' ? 'processing' : 
-              'success'
-            } style={{ fontSize: 16, padding: '4px 8px' }}>
-              {
-                match.status === 'pending' ? '未开始' : 
-                match.status === 'in_progress' ? '进行中' : 
-                '已完成'
-              }
-            </Tag>
-            
-            {isAdmin && (
-              <div className={styles.adminActions}>
-                {match.status === 'pending' && (
-                  <Button 
-                    type="primary" 
-                    onClick={() => handleStatusChange('in_progress')}
-                    style={{ marginTop: 8 }}
-                  >
-                    开始比赛
-                  </Button>
-                )}
-                {match.status === 'in_progress' && (
-                  <Button 
-                    type="primary" 
-                    onClick={() => handleStatusChange('completed')}
-                    style={{ marginTop: 8 }}
-                  >
-                    完成比赛
-                  </Button>
-                )}
-              </div>
-            )}
+            <Space direction="vertical" align="end">
+              <Tag color={
+                match.status === 'pending' ? 'default' : 
+                match.status === 'in_progress' ? 'processing' : 
+                'success'
+              } style={{ fontSize: 16, padding: '4px 8px' }}>
+                {
+                  match.status === 'pending' ? '未开始' : 
+                  match.status === 'in_progress' ? '进行中' : 
+                  '已完成'
+                }
+              </Tag>
+              
+              {isAdmin && (
+                <div className={styles.adminActions}>
+                  {match.status === 'pending' && (
+                    <Button 
+                      type="primary" 
+                      onClick={() => handleStatusChange('in_progress')}
+                      style={{ marginTop: 8 }}
+                    >
+                      开始比赛
+                    </Button>
+                  )}
+                  {match.status === 'in_progress' && (
+                    <Button 
+                      type="primary" 
+                      onClick={() => handleStatusChange('completed')}
+                      style={{ marginTop: 8 }}
+                    >
+                      完成比赛
+                    </Button>
+                  )}
+                </div>
+              )}
+              
+              {isPlayer && !isAdmin && match.competition_id && (
+                <div className={styles.playerActions} style={{ marginTop: 8 }}>
+                  {isRegistered ? (
+                    <Button 
+                      type="default" 
+                      danger
+                      loading={registerLoading}
+                      onClick={handleCancelRegistration}
+                    >
+                      取消报名
+                    </Button>
+                  ) : (
+                    <Button 
+                      type="primary" 
+                      loading={registerLoading}
+                      onClick={handleRegister}
+                      disabled={match.status !== 'pending'}
+                    >
+                      报名比赛
+                    </Button>
+                  )}
+                </div>
+              )}
+            </Space>
           </Col>
         </Row>
       </Card>
@@ -329,4 +438,4 @@ const MatchDetail: React.FC = () => {
   );
 };
 
-export default MatchDetail; 
+export default MatchDetail;

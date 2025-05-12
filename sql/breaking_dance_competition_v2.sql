@@ -3,15 +3,15 @@
 
  Source Server         : localhost_3306
  Source Server Type    : MySQL
- Source Server Version : 80019 (8.0.19)
+ Source Server Version : 80200
  Source Host           : localhost:3306
  Source Schema         : breaking_dance_competition_v2
 
  Target Server Type    : MySQL
- Target Server Version : 80019 (8.0.19)
+ Target Server Version : 80200
  File Encoding         : 65001
 
- Date: 20/04/2025 15:52:08
+ Date: 12/05/2025 09:38:33
 */
 
 SET NAMES utf8mb4;
@@ -33,7 +33,7 @@ CREATE TABLE `competition_stages`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `competition_id`(`competition_id` ASC) USING BTREE,
   CONSTRAINT `competition_stages_ibfk_1` FOREIGN KEY (`competition_id`) REFERENCES `competitions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of competition_stages
@@ -59,16 +59,16 @@ CREATE TABLE `competitions`  (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 505 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 504 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of competitions
 -- ----------------------------
 INSERT INTO `competitions` VALUES (1, '2024年第一季度霹雳舞比赛', '这是一个测试用的霹雳舞比赛，包含小组赛和淘汰赛阶段。', '2024-01-15 00:00:00', '2024-03-31 00:00:00', 'registration', '2025-04-19 07:37:14', '2025-04-19 07:37:14');
 INSERT INTO `competitions` VALUES (501, '2024全国霹雳舞锦标赛', '全国32强选手争夺霹雳舞最高荣誉', '2025-04-20 07:24:40', '2025-05-04 07:24:40', 'in_progress', '2025-04-20 07:24:40', '2025-04-20 07:24:40');
-INSERT INTO `competitions` VALUES (502, '2024全国霹雳舞锦标赛_140054', '全国32强选手争夺霹雳舞最高荣誉', '2025-04-20 07:29:00', '2025-05-04 07:29:00', 'in_progress', '2025-04-20 07:29:00', '2025-04-20 07:29:00');
+INSERT INTO `competitions` VALUES (502, '2024全国霹雳舞锦标赛_140054', '全国32强选手争夺霹雳舞最高荣誉', '2025-04-20 07:29:00', '2025-05-04 07:29:00', 'draft', '2025-04-20 07:29:00', '2025-04-20 07:29:00');
 INSERT INTO `competitions` VALUES (503, '霹雳舞锦标赛_34386708', '全国32强选手争夺霹雳舞最高荣誉', '2025-04-20 07:33:06', '2025-05-04 07:33:06', 'in_progress', '2025-04-20 07:33:06', '2025-04-20 07:33:06');
-INSERT INTO `competitions` VALUES (504, '霹雳舞锦标赛_34489526', '全国32强选手争夺霹雳舞最高荣誉', '2025-04-20 07:34:49', '2025-05-04 07:34:49', 'in_progress', '2025-04-20 07:34:49', '2025-04-20 07:34:49');
+INSERT INTO `competitions` VALUES (504, '霹雳舞锦标赛_34489526', '全国32强选手争夺霹雳舞最高荣誉', '2025-04-20 07:34:49', '2025-05-04 07:34:49', 'completed', '2025-04-20 07:34:49', '2025-04-20 07:34:49');
 
 -- ----------------------------
 -- Table structure for group_players
@@ -87,7 +87,7 @@ CREATE TABLE `group_players`  (
   INDEX `player_id`(`player_id` ASC) USING BTREE,
   CONSTRAINT `group_players_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `group_players_ibfk_2` FOREIGN KEY (`player_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 37 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 36 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of group_players
@@ -118,7 +118,7 @@ CREATE TABLE `groups`  (
   INDEX `stage_id`(`stage_id` ASC) USING BTREE,
   CONSTRAINT `groups_ibfk_1` FOREIGN KEY (`competition_id`) REFERENCES `competitions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `groups_ibfk_2` FOREIGN KEY (`stage_id`) REFERENCES `competition_stages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of groups
@@ -161,7 +161,7 @@ CREATE TABLE `matches`  (
   CONSTRAINT `matches_ibfk_4` FOREIGN KEY (`player1_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `matches_ibfk_5` FOREIGN KEY (`player2_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `matches_winner_id_foreign_idx` FOREIGN KEY (`winner_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 35 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 34 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of matches
@@ -204,7 +204,7 @@ CREATE TABLE `registrations`  (
   INDEX `player_id`(`player_id` ASC) USING BTREE,
   CONSTRAINT `registrations_ibfk_1` FOREIGN KEY (`competition_id`) REFERENCES `competitions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `registrations_ibfk_2` FOREIGN KEY (`player_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 49 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 48 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of registrations
@@ -214,7 +214,6 @@ INSERT INTO `registrations` VALUES (6, 1, 2, 'approved', '2025-04-19 09:45:48', 
 INSERT INTO `registrations` VALUES (7, 1, 3, 'approved', '2025-04-19 15:48:38', '2025-04-19 15:48:38');
 INSERT INTO `registrations` VALUES (8, 1, 4, 'approved', '2025-04-19 15:48:38', '2025-04-19 15:48:38');
 INSERT INTO `registrations` VALUES (9, 1, 5, 'approved', '2025-04-19 15:48:38', '2025-04-19 15:48:38');
-INSERT INTO `registrations` VALUES (10, 1, 6, 'approved', '2025-04-19 15:48:38', '2025-04-19 15:48:38');
 INSERT INTO `registrations` VALUES (11, 1, 7, 'approved', '2025-04-19 15:48:38', '2025-04-19 15:48:38');
 INSERT INTO `registrations` VALUES (12, 1, 8, 'approved', '2025-04-19 15:48:38', '2025-04-19 15:48:38');
 INSERT INTO `registrations` VALUES (13, 1, 9, 'approved', '2025-04-19 15:48:38', '2025-04-19 15:48:38');
@@ -274,7 +273,7 @@ CREATE TABLE `scores`  (
   CONSTRAINT `scores_ibfk_1` FOREIGN KEY (`match_id`) REFERENCES `matches` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `scores_ibfk_2` FOREIGN KEY (`player_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `scores_ibfk_3` FOREIGN KEY (`judge_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 41 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 40 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of scores
@@ -319,10 +318,10 @@ INSERT INTO `scores` VALUES (40, 18, 665, 633, 84.80, '选手表现出色', '202
 -- ----------------------------
 DROP TABLE IF EXISTS `sequelizemeta`;
 CREATE TABLE `sequelizemeta`  (
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   PRIMARY KEY (`name`) USING BTREE,
   UNIQUE INDEX `name`(`name` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sequelizemeta
@@ -353,7 +352,7 @@ CREATE TABLE `users`  (
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `username`(`username` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 666 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 665 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of users

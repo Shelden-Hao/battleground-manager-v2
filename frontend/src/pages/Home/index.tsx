@@ -159,7 +159,7 @@ const Home: React.FC = () => {
       <Card
         title="我的报名"
         className={styles.listCard}
-        extra={<Button type="link" onClick={() => history.push('/registrations/my')}>查看全部</Button>}
+        extra={<Button type="link" onClick={() => history.push('/my-registrations')}>查看全部</Button>}
       >
         <List
           loading={loading}

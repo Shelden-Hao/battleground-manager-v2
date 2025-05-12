@@ -58,6 +58,18 @@ export default defineConfig({
       access: 'isPlayer',
     },
     {
+      name: '我的报名',
+      path: '/my-registrations',
+      component: './MyRegistrations',
+      access: 'isPlayer',
+    },
+    {
+      name: '报名管理',
+      path: '/registrations',
+      component: './Registrations',
+      access: 'isAdmin',
+    },
+    {
       name: '裁判评分',
       path: '/judge-matches',
       component: './JudgeMatches',
@@ -69,22 +81,6 @@ export default defineConfig({
       component: './JudgeScoring',
       access: 'isJudge',
     },
-    // {
-    //   name: '报名管理',
-    //   path: '/registrations',
-    //   routes: [
-    //     {
-    //       path: '/registrations',
-    //       component: './Registrations',
-    //       access: 'isAdmin',
-    //     },
-    //     {
-    //       path: '/registrations/my',
-    //       component: './Registrations/My',
-    //       access: 'isPlayer',
-    //     },
-    //   ],
-    // },
     {
       name: '比赛对阵',
       path: '/matches',

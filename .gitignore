@@ -8,3 +8,5 @@ dist
 
 # 忽略所有build
 build
+
+.history

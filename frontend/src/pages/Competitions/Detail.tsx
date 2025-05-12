@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import { getCompetition, getCompetitionStage, generateTop32Matches, generateNextRoundMatches } from '@/services/competition';
 import { getMatches } from '@/services/match';
+import { register, cancelRegistration, getMyRegistrations } from '@/services/registration';
 import styles from './Detail.less';
 
 const { Step } = Steps;
@@ -25,13 +26,18 @@ const CompetitionDetail: React.FC = () => {
   const [matches, setMatches] = useState<API.Match[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeStage, setActiveStage] = useState<number | null>(null);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [registrationId, setRegistrationId] = useState<number | null>(null);
+  const [registerLoading, setRegisterLoading] = useState(false);
   
   const access = useAccess();
   const isAdmin = access.isAdmin;
+  const isPlayer = access.isPlayer;
   
   useEffect(() => {
     if (id) {
       fetchCompetition(Number(id));
+      checkRegistrationStatus();
     }
   }, [id]);
   
@@ -249,8 +255,117 @@ const CompetitionDetail: React.FC = () => {
     setActiveStage(Number(key));
   };
   
+  // 检查当前用户是否已报名本比赛
+  const checkRegistrationStatus = async () => {
+    if (!id || !isPlayer) return;
+    
+    try {
+      const registrations = await getMyRegistrations();
+      const currentRegistration = registrations.find(
+        (reg: any) => reg.competition_id === Number(id)
+      );
+      
+      if (currentRegistration) {
+        setIsRegistered(true);
+        setRegistrationId(currentRegistration.id);
+      } else {
+        setIsRegistered(false);
+        setRegistrationId(null);
+      }
+    } catch (error) {
+      console.error('获取报名状态失败', error);
+    }
+  };
+  
+  // 报名比赛
+  const handleRegister = async () => {
+    if (!id) return;
+    
+    setRegisterLoading(true);
+    try {
+      await register({ competition_id: Number(id) });
+      message.success('报名成功');
+      checkRegistrationStatus();
+    } catch (error) {
+      console.error('报名失败', error);
+      message.error('报名失败，请稍后重试');
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+  
+  // 取消报名
+  const handleCancelRegistration = () => {
+    if (!registrationId) return;
+    
+    Modal.confirm({
+      title: '取消报名',
+      content: '确定要取消报名吗？',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: async () => {
+        setRegisterLoading(true);
+        try {
+          await cancelRegistration(registrationId);
+          message.success('已取消报名');
+          setIsRegistered(false);
+          setRegistrationId(null);
+        } catch (error) {
+          console.error('取消报名失败', error);
+          message.error('取消报名失败，请稍后重试');
+        } finally {
+          setRegisterLoading(false);
+        }
+      },
+    });
+  };
+  
   return (
     <div className={styles.container}>
+      <Card>
+        <Row gutter={[24, 24]}>
+          <Col span={24}>
+            <Row justify="space-between" align="middle">
+              <Col>
+                <Title level={2}>{competition?.title}</Title>
+              </Col>
+              <Col>
+                <Space>
+                  {isPlayer && !isAdmin && (
+                    isRegistered ? (
+                      <Button 
+                        type="default" 
+                        danger
+                        loading={registerLoading}
+                        onClick={handleCancelRegistration}
+                      >
+                        取消报名
+                      </Button>
+                    ) : (
+                      <Button 
+                        type="primary" 
+                        loading={registerLoading}
+                        onClick={handleRegister}
+                        disabled={competition?.status === 'completed' || competition?.status === 'in_progress'}
+                      >
+                        报名比赛
+                      </Button>
+                    )
+                  )}
+                  {isAdmin && (
+                    <Button 
+                      type="primary" 
+                      onClick={() => history.push(`/registrations?competition_id=${id}`)}
+                    >
+                      查看报名选手
+                    </Button>
+                  )}
+                </Space>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Card>
       {competition && (
         <>
           <Card className={styles.header}>

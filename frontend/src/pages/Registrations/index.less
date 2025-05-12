@@ -1,0 +1,42 @@
+.filterCard {
+  margin-bottom: 24px;
+}
+
+.tableCard {
+  margin-bottom: 24px;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.statusTag {
+  min-width: 80px;
+  text-align: center;
+}
+
+.actionButton {
+  margin-right: 8px;
+}
+
+.searchInput {
+  width: 250px;
+}
+
+@media screen and (max-width: 768px) {
+  .searchInput {
+    width: 100%;
+  }
+  
+  .filterForm {
+    width: 100%;
+    
+    :global(.ant-form-item) {
+      margin-bottom: 16px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+} 
